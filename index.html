@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="MC 1.21.11 纯生存服务器官方站点，提供服务器地址、实时地图、游玩教程与登录说明">
+    <title>『云檐丨CloudEave』-官方网站</title>
+    <!-- 站点图标 -->
+    <link rel="icon" href="logo.png" type="image/png">
+    <!-- 外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==================================================
+           【1】设计令牌：全局变量统一管理
+           ================================================== */
+        :root {
+            /* 主色体系 */
+            --color-primary: #22c55e;
+            --color-primary-light: #4ade80;
+            --color-secondary: #3b82f6;
+            --color-accent: #a855f7;
+            --color-cyan: #22d3ee;
+            --color-danger: #ef4444;
+            --color-warning: #facc15;
+            /* 文本色阶 */
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            /* 毛玻璃体系 */
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-card-bg: rgba(255, 255, 255, 0.08);
+            --glass-card-hover: rgba(255, 255, 255, 0.12);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-strong: rgba(255, 255, 255, 0.12);
+            --glass-blur: 20px;
+            --glass-blur-card: 16px;
+            /* 间距体系 */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            /* 圆角体系 */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            /* 动效体系 */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.4s ease;
+            /* 阴影 */
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --shadow-icon: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        /* ==================================================
+           【2】基础重置与通用样式
+           ================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        /* 代码/指令通用样式 */
+        .cmd {
+            font-family: 'Courier New', Consolas, monospace;
+            color: var(--color-cyan);
+            font-weight: 500;
+            word-break: break-all;
+        }
+        .font-mono {
+            font-family: 'Courier New', Consolas, monospace;
+        }
+        /* ==================================================
+           【3】背景装饰层
+           ================================================== */
+        .bg-decoration {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--color-primary);
+            top: -150px;
+            right: -100px;
+            animation: float1 15s ease-in-out infinite;
+        }
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--color-secondary);
+            bottom: -100px;
+            left: -100px;
+            animation: float2 18s ease-in-out infinite;
+        }
+        .blob-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--color-accent);
+            top: 40%;
+            left: 30%;
+            animation: float3 20s ease-in-out infinite;
+        }
+        /* ==================================================
+           【4】通用组件库
+           ================================================== */
+        /* 毛玻璃基底 */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+        }
+        /* 毛玻璃卡片 */
+        .glass-card {
+            background: var(--glass-card-bg);
+            backdrop-filter: blur(var(--glass-blur-card));
+            -webkit-backdrop-filter: blur(var(--glass-blur-card));
+            border: 1px solid var(--glass-border-strong);
+            border-radius: var(--radius-xl);
+            transition: var(--transition-normal);
+        }
+        .glass-card:hover {
+            background: var(--glass-card-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        /* 渐变文字 */
+        .gradient-text {
+            background: linear-gradient(135deg, #4ade80 0%, #22d3ee 50%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* 区块标题左侧彩条 */
+        .section-title-bar {
+            width: 4px;
+            height: 20px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+        /* 通用按钮 */
+        .btn {
+            border: none;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-normal);
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .btn:focus-visible {
+            outline: 2px solid var(--color-primary-light);
+            outline-offset: 2px;
+        }
+        /* 复制按钮 */
+        .btn-copy {
+            padding: 6px 14px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--color-primary-light);
+            flex-shrink: 0;
+        }
+        .btn-copy:hover {
+            background: rgba(34, 197, 94, 0.25);
+            transform: translateY(-1px);
+        }
+        .btn-copy.copied {
+            background: rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+        /* 刷新按钮 */
+        .btn-refresh {
+            padding: 6px 14px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--color-primary-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-refresh:hover {
+            background: rgba(34, 197, 94, 0.25);
+            transform: translateY(-1px);
+        }
+        .btn-refresh:active {
+            transform: scale(0.96);
+        }
+        .btn-refresh.loading svg {
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* ==================================================
+           【5】布局结构
+           ================================================== */
+        .page-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 顶部导航栏 */
+        .site-header {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        .header-logo {
+            height: 42px;
+            width: auto;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .header-title {
+            font-size: clamp(1.25rem, 3vw, 1.875rem);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+        /* 服务器状态指示器 */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-text {
+            font-size: 14px;
+        }
+        /* 运行中-绿色 */
+        .status-online .status-dot {
+            background: var(--color-primary);
+            box-shadow: 0 0 10px var(--color-primary);
+            animation: pulse-green 2s ease-in-out infinite;
+        }
+        .status-online .status-text {
+            color: var(--color-primary-light);
+        }
+        /* 未连接-红色（默认） */
+        .status-disconnected .status-dot {
+            background: var(--color-danger);
+            box-shadow: 0 0 10px var(--color-danger);
+            animation: pulse-red 1.5s ease-in-out infinite;
+        }
+        .status-disconnected .status-text {
+            color: #f87171;
+        }
+        /* 主体容器 */
+        .main-wrapper {
+            flex: 1;
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-lg);
+        }
+        /* 侧边栏 */
+        .sidebar {
+            width: 224px;
+            flex-shrink: 0;
+        }
+        .sidebar-nav {
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-xl);
+            position: sticky;
+            top: var(--spacing-lg);
+        }
+        /* 主内容区 */
+        .content-main {
+            flex: 1;
+            min-width: 0;
+        }
+        /* 页脚 */
+        .site-footer {
+            padding: var(--spacing-md);
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* ==================================================
+           【6】侧边导航菜单
+           ================================================== */
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+        .menu-item {
+            position: relative;
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            color: #d1d5db;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            overflow: hidden;
+            transition: var(--transition-normal);
+            font-family: inherit;
+        }
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        .menu-item:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .menu-item.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--color-primary-light);
+        }
+        .menu-item.active::before {
+            transform: scaleY(1);
+        }
+        .menu-item:focus-visible {
+            outline: 2px solid var(--color-primary-light);
+            outline-offset: -2px;
+        }
+        /* ==================================================
+           【7】内容面板通用样式
+           ================================================== */
+        .panel {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp var(--transition-slow) forwards;
+        }
+        .panel.active {
+            display: block;
+        }
+        .section-card {
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        .section-card:last-child {
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        /* ==================================================
+           【8】各模块专属样式
+           ================================================== */
+        /* ---- 快速连接模块 ---- */
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            color: var(--text-secondary);
+            min-width: 110px;
+        }
+        .info-value {
+            flex: 1;
+            font-size: 15px;
+            color: #e5e7eb;
+        }
+        /* ---- 服务器设置网格 ---- */
+        .setting-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-left: 12px;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .setting-label {
+            color: var(--text-secondary);
+        }
+        /* ---- 管理员标签 ---- */
+        .admin-tag {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: linear-gradient(to right, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            font-weight: 500;
+        }
+        /* ---- 启动器卡片 ---- */
+        .launcher-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+        .launcher-card {
+            padding: 20px;
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .launcher-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-icon);
+            overflow: hidden;
+        }
+        .launcher-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .launcher-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .launcher-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        /* 下载按钮【修改：加宽内边距横向】 */
+        .btn-download {
+            position: relative;
+            width: 100%;
+            padding: 8px 24px;
+            color: white;
+            font-weight: 500;
+            overflow: hidden;
+        }
+        .btn-download::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .btn-download:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        .btn-download:hover {
+            box-shadow: var(--shadow-icon);
+        }
+        /* ---- 监控卡片 ---- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        .stat-card {
+            padding: 20px;
+            border-radius: var(--radius-xl);
+        }
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-bar {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            width: 0;
+            transition: width 0.5s ease;
+        }
+        /* 玩家卡片样式 */
+        .player-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            min-width: 200px;
+        }
+        .player-name {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+        .player-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .player-world {
+            color: var(--color-cyan);
+        }
+        .player-coord {
+            font-family: 'Courier New', monospace;
+        }
+        /* ---- 提示卡片（补充说明） ---- */
+        .tip-card {
+            padding: 20px;
+            border-left: 4px solid;
+            margin-bottom: 16px;
+        }
+        .tip-card:last-child {
+            margin-bottom: 0;
+        }
+        .tip-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .tip-content {
+            font-size: 14px;
+            color: #d1d5db;
+            line-height: 1.7;
+        }
+        /* ---- 视频占位 ---- */
+        .video-placeholder {
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+        /* ==================================================
+           【9】动画关键帧
+           ================================================== */
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, 50px) scale(1.1); }
+        }
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, -40px) scale(1.15); }
+        }
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, 60px) scale(1.05); }
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--color-primary); }
+            50% { opacity: 0.6; box-shadow: 0 0 20px var(--color-primary); }
+        }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--color-danger); }
+            50% { opacity: 0.5; box-shadow: 0 0 20px var(--color-danger); }
+        }
+        /* ==================================================
+           【10】滚动条美化
+           ================================================== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        /* ==================================================
+           【11】响应式适配
+           ================================================== */
+        /* 平板及以上 */
+        @media (min-width: 768px) {
+            .setting-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .launcher-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        /* 桌面及以上 */
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        /* 移动端适配 */
+        @media (max-width: 767px) {
+            .main-wrapper {
+                flex-direction: column;
+                padding: var(--spacing-md);
+            }
+            .sidebar {
+                width: 100%;
+            }
+            .sidebar-nav {
+                position: static;
+            }
+            .menu-list {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+            .menu-item {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .info-row .btn-copy {
+                align-self: flex-end;
+            }
+            .site-header {
+                padding: var(--spacing-md);
+            }
+            .header-title {
+                font-size: 1.1rem;
+            }
+            .header-logo {
+                height: 36px;
+            }
+            .player-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰层 -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+        <div class="bg-blob blob-3"></div>
+    </div>
+    <div class="page-container">
+        <!-- ========== 顶部标题栏 ========== -->
+        <header class="site-header glass">
+            <div class="header-content">
+                <div class="header-brand">
+                    <img src="logo.png" alt="服务器Logo" class="header-logo" loading="eager">
+                    <h1 class="header-title gradient-text">『云檐丨CloudEave』-官方网站</h1>
+                </div>
+                <!-- 服务器状态 -->
+                <div id="server-status" class="status-indicator status-disconnected" role="status" aria-label="服务器状态：未连接">
+                    <div class="status-dot" aria-hidden="true"></div>
+                    <span class="status-text">未连接至服务器</span>
+                </div>
+            </div>
+        </header>
+        <!-- ========== 主体内容区 ========== -->
+        <div class="main-wrapper">
+            <!-- 左侧导航菜单 -->
+            <aside class="sidebar">
+                <nav class="sidebar-nav glass" aria-label="页面导航">
+                    <div class="menu-list" role="tablist">
+                        <button class="menu-item active" role="tab" aria-selected="true" data-target="panel-basic">📋 基础信息</button>
+                        <button class="menu-item" role="tab" aria-selected="false" data-target="panel-status">⚙️ 运行属性</button>
+                        <button class="menu-item" role="tab" aria-selected="false" data-target="panel-tutorial">📖 游玩教程</button>
+                        <button class="menu-item" role="tab" aria-selected="false" data-target="panel-tips">💡 补充说明</button>
+                    </div>
+                </nav>
+            </aside>
+            <!-- 右侧主内容 -->
+            <main class="content-main">
+                <!-- 面板1：基础信息 -->
+                <section id="panel-basic" class="panel active" role="tabpanel" aria-labelledby="基础信息">
+                    <!-- 快速连接 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-cyan-400 to-blue-500"></span>
+                            快速连接
+                        </h2>
+                        <div class="info-row">
+                            <div class="info-label">
+                                <span aria-hidden="true">🌐</span>
+                                <span>服务器地址</span>
+                            </div>
+                            <div class="info-value font-mono" id="server-address">free-c2.tudouai.cn:11315</div>
+                            <button type="button" class="btn btn-copy" onclick="MCServer.copyText('server-address', this)" title="复制服务器地址">复制</button>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">
+                                <span aria-hidden="true">🗺️</span>
+                                <span>实时地图</span>
+                            </div>
+                            <div class="info-value font-mono" id="map-url">https://tudouai.cn/map/8megp5oonl</div>
+                            <button type="button" class="btn btn-copy" onclick="MCServer.copyText('map-url', this)" title="复制地图链接">复制</button>
+                        </div>
+                    </div>
+                    <!-- 开服信息 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-green-400 to-blue-500"></span>
+                            开服信息
+                        </h2>
+                        <ul class="space-y-2 text-gray-300 ml-3">
+                            <li class="flex items-center gap-2">
+                                <span class="text-green-400" aria-hidden="true">•</span>长期稳定运行
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="text-green-400" aria-hidden="true">•</span>最大在线：20人
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 服务器设置 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-blue-400 to-purple-500"></span>
+                            服务器设置
+                        </h2>
+                        <div class="setting-grid">
+                            <div class="setting-item">
+                                <span class="setting-label">游戏难度</span>
+                                <span class="text-red-400 font-medium">困难</span>
+                            </div>
+                            <div class="setting-item">
+                                <span class="setting-label">死亡保留物品</span>
+                                <span class="text-green-400 font-medium">开启</span>
+                            </div>
+                            <div class="setting-item">
+                                <span class="setting-label">生物破坏方块</span>
+                                <span class="text-yellow-400 font-medium">关闭</span>
+                            </div>
+                            <div class="setting-item">
+                                <span class="setting-label">允许玩家PVP</span>
+                                <span class="text-green-400 font-medium">开启</span>
+                            </div>
+                            <div class="setting-item">
+                                <span class="setting-label">正版验证</span>
+                                <span class="text-gray-400 font-medium">关闭</span>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-500 ml-3">其余配置保持游戏默认</p>
+                    </div>
+                    <!-- 游玩规则 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-yellow-400 to-orange-500"></span>
+                            游玩规则
+                        </h2>
+                        <ul class="space-y-3 text-gray-300 ml-3">
+                            <li class="flex items-start gap-2">
+                                <span class="text-yellow-400 mt-1" aria-hidden="true">•</span>
+                                <span>禁止恶意崩服，攻击服务器</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-yellow-400 mt-1" aria-hidden="true">•</span>
+                                <span>尽量不要单向远距离跑图，减少服务器负担</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-yellow-400 mt-1" aria-hidden="true">•</span>
+                                <span>禁止开挂，使用作弊客户端</span>
+                            </li>
+                        </ul>
+                        <p class="mt-4 text-sm text-gray-500 ml-3">其余内容可自由发展</p>
+                    </div>
+                    <!-- 游戏内管理员 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-purple-400 to-pink-500"></span>
+                            游戏内管理员
+                        </h2>
+                        <div class="flex flex-wrap gap-3 ml-3">
+                            <div class="admin-tag">heiwa01</div>
+                            <div class="admin-tag">JJLSWCJ</div>
+                        </div>
+                    </div>
+                    <!-- 补充说明 -->
+                    <div class="section-card glass-card border-l-4 border-l-cyan-400">
+                        <h2 class="text-lg font-semibold mb-3 text-cyan-300">补充说明</h2>
+                        <p class="text-gray-300 leading-relaxed">
+                            若遇到任何的问题，可以加入我们的企鹅交流群：
+                            <span class="font-mono text-cyan-400 font-bold">1127411282</span>
+                            ，里面会包含更多教程。祝大家游玩愉快！
+                        </p>
+                    </div>
+                </section>
+                <!-- 面板2：实例运行属性 -->
+                <section id="panel-status" class="panel" role="tabpanel" aria-labelledby="实例运行属性">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold mb-1">实例运行属性</h2>
+                            <p class="text-gray-400 text-sm">实时监控数据，每15秒自动刷新</p>
+                        </div>
+                        <button type="button" class="btn btn-refresh" id="btn-refresh" onclick="MCServer.manualRefresh()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                                <path d="M21 3v5h-5"></path>
+                            </svg>
+                            刷新数据
+                        </button>
+                    </div>
+                    <div class="stats-grid">
+                        <!-- CPU -->
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <span class="stat-label">CPU 核心数</span>
+                                <span class="text-2xl" aria-hidden="true">💻</span>
+                            </div>
+                            <div class="stat-value text-blue-400">-- 核心</div>
+                            <div class="text-xs text-gray-500">Java 服务端可用核心</div>
+                        </div>
+                        <!-- 内存 -->
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <span class="stat-label">内存使用</span>
+                                <span class="text-2xl" aria-hidden="true">📼</span>
+                            </div>
+                            <div class="stat-value text-green-400">-- GB</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill bg-gradient-to-r from-green-400 to-emerald-400"></div>
+                            </div>
+                        </div>
+                        <!-- 存储空间 -->
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <span class="stat-label">存储空间</span>
+                                <span class="text-2xl" aria-hidden="true">💾</span>
+                            </div>
+                            <div class="stat-value text-purple-400">20 GB</div>
+                            <div class="text-xs text-gray-500">服务器总磁盘配额</div>
+                        </div>
+                        <!-- TPS -->
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <span class="stat-label">服务器 TPS</span>
+                                <span class="text-2xl" aria-hidden="true">⚡</span>
+                            </div>
+                            <div class="stat-value text-yellow-400">--</div>
+                            <div class="text-xs text-gray-500">标准 20.0 TPS</div>
+                        </div>
+                    </div>
+                    <!-- 在线玩家列表 -->
+                    <div class="section-card glass-card">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center justify-between">
+                            <span>🎮 在线玩家列表</span>
+                            <span class="text-sm font-normal text-gray-400" id="player-count">0 / 20</span>
+                        </h3>
+                        <div id="player-list-container" class="text-center py-12 text-gray-500">
+                            <div class="text-4xl mb-3" aria-hidden="true">🏠</div>
+                            <p>暂无玩家在线</p>
+                            <p class="text-sm mt-1">数据实时更新中</p>
+                        </div>
+                    </div>
+                </section>
+                <!-- 面板3：游玩教程 -->
+                <section id="panel-tutorial" class="panel" role="tabpanel" aria-labelledby="游玩教程">
+                    <!-- 客户端版本 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-green-400 to-cyan-500"></span>
+                            需要游戏客户端的版本
+                        </h2>
+                        <div class="ml-3">
+                            <span class="inline-block px-4 py-2 rounded-lg bg-green-500/20 text-green-400 font-mono font-semibold border border-green-400/30">
+                                JAVA 1.21.11
+                            </span>
+                        </div>
+                    </div>
+                    <!-- 启动器下载 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-blue-400 to-purple-500"></span>
+                            游戏启动器下载资源
+                        </h2>
+                        <div class="launcher-grid">
+                            <!-- PCL -->
+                            <div class="launcher-card glass-card">
+                                <div class="launcher-icon">
+                                    <img src="pcl.png" alt="PCL启动器图标" loading="lazy">
+                                </div>
+                                <h3 class="launcher-name">PCL 启动器</h3>
+                                <p class="launcher-desc">Plain Craft Launcher</p>
+                                <a href="https://1859015095.share.123pan.cn/123pan/Gl4cvd-2TiEH?pwd=pcl2#" target="_blank">
+                                    <button type="button" class="btn btn-download bg-gradient-to-r from-blue-500 to-blue-700">
+                                        立即下载
+                                    </button>
+                                </a>
+                            </div>
+                            <!-- HMCL -->
+                            <div class="launcher-card glass-card">
+                                <div class="launcher-icon">
+                                    <img src="hmcl.png" alt="HMCL启动器图标" loading="lazy">
+                                </div>
+                                <h3 class="launcher-name">HMCL 启动器</h3>
+                                <p class="launcher-desc">Hello Minecraft Launcher</p>
+                                <a href="https://1859015095.share.123pan.cn/123pan/Gl4cvd-QwVQH?pwd=hmcl#" target="_blank">
+                                    <button type="button" class="btn btn-download bg-gradient-to-r from-amber-600 to-amber-800">
+                                        立即下载
+                                    </button>
+                                </a>
+                            </div>
+                            <!-- FCL -->
+                            <div class="launcher-card glass-card">
+                                <div class="launcher-icon">
+                                    <img src="fcl.png" alt="FCL启动器图标" loading="lazy">
+                                </div>
+                                <h3 class="launcher-name">FCL 启动器</h3>
+                                <p class="launcher-desc">Fold Craft Launcher</p>
+                                <a href="https://1859015095.share.123pan.cn/123pan/Gl4cvd-fj1EH?pwd=FCL1#" target="_blank">
+                                    <button type="button" class="btn btn-download bg-gradient-to-r from-cyan-500 to-teal-700">
+                                        立即下载
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 视频教程 -->
+                    <div class="section-card glass-card">
+                        <h2 class="section-title">
+                            <span class="section-title-bar bg-gradient-to-b from-pink-400 to-rose-500"></span>
+                            视频教程
+                        </h2>
+                        <div style="aspect‑ratio:16/9;width:100%;border-radius:var(--radius-md);overflow:hidden;">
+                            <video controls style="width:100%;height:100%;object-fit:contain;">
+                                <source src="video.mp4" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                        </div>
+                    </div>
+                </section>
+                <!-- 面板4：补充说明 -->
+                <section id="panel-tips" class="panel" role="tabpanel" aria-labelledby="补充说明">
+                    <h2 class="text-xl font-semibold gradient-text mb-2">萌新玩家注意事项</h2>
+                    <p class="text-gray-400 mb-6">刚进入服务器？请仔细阅读以下内容，帮助你快速上手并避免踩坑。</p>
+                    <div class="tip-card glass-card border-l-green-400">
+                        <h3 class="tip-title text-green-300">🌱 第一次进服</h3>
+                        <p class="tip-content">
+                            首次进入服务器请先熟悉出生点周围环境，不要随意破坏公共设施。建议先收集基础资源，制作工具和装备后再外出探索。出生点附近设有公共仓库，可临时存放物品。
+                        </p>
+                    </div>
+                    <div class="tip-card glass-card border-l-cyan-400">
+                        <h3 class="tip-title text-cyan-300">🔐 进服时如何登录</h3>
+                        <p class="tip-content">
+                            本次服务器插件选用作者自研的 <span class="text-cyan-300 font-medium">Auth Gate</span> 登陆插件。玩家首次进服需注册账号，游戏内聊天栏输入
+                            <span class="cmd">/auth register &lt;密码&gt; &lt;确认密码&gt;</span>
+                            指令即可设置你该账号的密码。后续进服输入
+                            <span class="cmd">/auth login &lt;密码&gt;</span>
+                            或
+                            <span class="cmd">a l &lt;密码&gt;</span>
+                            指令即可登录，若想修改密码，可用指令
+                            <span class="cmd">/auth changepw &lt;旧密码&gt; &lt;新密码&gt;</span>
+                            进行修改。
+                            <br><br>
+                            <strong class="text-yellow-300">注意：</strong>所有指令无需带 <span class="font-mono">&lt;&gt;</span> 这类符号；密码必须是数字加字母且保证有6位数的密码；你的密码务必要记住！
+                        </p>
+                    </div>
+                    <div class="tip-card glass-card border-l-yellow-400">
+                        <h3 class="tip-title text-yellow-300">⚠️ 关于领地与保护</h3>
+                        <p class="tip-content">
+                            服务器已关闭生物破坏方块，但玩家仍可交互。请务必圈好自己的领地，重要物资上锁。不要轻易相信陌生人，不要把账号密码借给他人。遇到恶意破坏请及时联系管理员。
+                        </p>
+                    </div>
+                    <div class="tip-card glass-card border-l-blue-400">
+                        <h3 class="tip-title text-blue-300">🌍 探索与跑图</h3>
+                        <p class="tip-content">
+                            服务器资源有限，请避免无意义的远距离单向跑图，这会产生大量区块加载，严重影响服务器性能。建议结伴探索，或使用地狱交通进行长途移动。发现大型遗迹可以分享给大家。
+                        </p>
+                    </div>
+                    <div class="tip-card glass-card border-l-red-400">
+                        <h3 class="tip-title text-red-300">🚫 绝对禁止行为</h3>
+                        <p class="tip-content">
+                            使用外挂、作弊模组、自动挖矿等违规工具，一经发现永久封禁。恶意卡服、崩服、利用漏洞刷物品均为严重违规。请勿在公屏刷屏、辱骂他人，营造友好的游戏氛围。
+                        </p>
+                    </div>
+                    <div class="tip-card glass-card border-l-purple-400">
+                        <h3 class="tip-title text-purple-300">💬 交流与反馈</h3>
+                        <p class="tip-content">
+                            遇到问题、发现 Bug 或有好的建议，欢迎加入交流群反馈。管理员会定期查看并处理。服务器长期开放，后续会持续更新内容，感谢大家的支持与陪伴。
+                        </p>
+                    </div>
+                    <div class="mt-8 text-center">
+                        <p class="text-gray-400 mb-2">有任何疑问，欢迎加入交流群咨询</p>
+                        <div class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/30">
+                            <span class="text-gray-300">交流群：</span>
+                            <span class="font-mono text-xl font-bold text-cyan-300">1127411282</span>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+        <!-- ========== 页脚 ========== -->
+        <footer class="site-footer glass">
+            <p>© 『云檐丨CloudEave』 · 用心保证每位玩家的游玩体验</p>
+        </footer>
+    </div>
+    <script>
+        /**
+         * MC服务器官网 核心脚本
+         * 模块化封装 + ServerTap 接口数据对接 + 15秒自动刷新
+         */
+        const MCServer = (function () {
+            // DOM 元素缓存
+            let menuItems = [];
+            let panels = [];
+            let statusEl = null;
+            let statusTextEl = null;
+            let playerListContainer = null;
+            let playerCountEl = null;
+            let refreshBtn = null;
+            // 维度名称映射（匹配 ServerTap 实际返回值）
+            const WORLD_NAMES = {
+                'NORMAL': '主世界',
+                'NETHER': '下界',
+                'THE_END': '末地'
+            };
+            // 接口基础地址
+            const API_BASE = "http://free-c2.tudouai.cn:11316/v1";
+            // 自动刷新间隔（15秒）
+            const REFRESH_INTERVAL = 15000;
+            // 防止重复请求标记
+            let isRefreshing = false;
+            /**
+             * 页面初始化
+             */
+            function init() {
+                // 缓存元素
+                menuItems = document.querySelectorAll('.menu-item');
+                panels = document.querySelectorAll('.panel');
+                statusEl = document.getElementById('server-status');
+                statusTextEl = statusEl ? statusEl.querySelector('.status-text') : null;
+                playerListContainer = document.getElementById('player-list-container');
+                playerCountEl = document.getElementById('player-count');
+                refreshBtn = document.getElementById('btn-refresh');
+                // 绑定菜单事件
+                bindMenuEvents();
+                // 立即拉取一次数据，然后开启定时刷新
+                updateServerStats();
+                setInterval(updateServerStats, REFRESH_INTERVAL);
+            }
+            /**
+             * 绑定菜单切换事件
+             */
+            function bindMenuEvents() {
+                menuItems.forEach(item => {
+                    item.addEventListener('click', function () {
+                        const target = this.getAttribute('data-target');
+                        switchPanel(target);
+                    });
+                    // 键盘支持：回车/空格触发
+                    item.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            const target = this.getAttribute('data-target');
+                            switchPanel(target);
+                        }
+                    });
+                });
+            }
+            /**
+             * 切换内容面板
+             * @param {string} targetId - 目标面板ID
+             */
+            function switchPanel(targetId) {
+                // 移除所有激活状态
+                menuItems.forEach(item => {
+                    item.classList.remove('active');
+                    item.setAttribute('aria-selected', 'false');
+                });
+                panels.forEach(panel => panel.classList.remove('active'));
+                // 激活当前项
+                const activeMenu = document.querySelector(`[data-target="${targetId}"]`);
+                const activePanel = document.getElementById(targetId);
+                if (activeMenu) {
+                    activeMenu.classList.add('active');
+                    activeMenu.setAttribute('aria-selected', 'true');
+                }
+                if (activePanel) {
+                    // 重启动画
+                    activePanel.style.animation = 'none';
+                    void activePanel.offsetHeight; // 触发重排
+                    activePanel.style.animation = null;
+                    activePanel.classList.add('active');
+                }
+            }
+            /**
+             * 设置顶部服务器状态
+             * @param {string} status - online / disconnected
+             */
+            function setServerStatus(status) {
+                if (!statusEl || !statusTextEl) return;
+                statusEl.classList.remove('status-online', 'status-disconnected');
+                let text = '';
+                switch (status) {
+                    case 'online':
+                        statusEl.classList.add('status-online');
+                        text = '服务器运行中';
+                        break;
+                    case 'disconnected':
+                    default:
+                        statusEl.classList.add('status-disconnected');
+                        text = '未连接至服务器';
+                        break;
+                }
+                statusTextEl.textContent = text;
+                statusEl.setAttribute('aria-label', `服务器状态：${text}`);
+            }
+            /**
+             * 手动刷新数据
+             */
+            function manualRefresh() {
+                if (isRefreshing) return;
+                if (refreshBtn) refreshBtn.classList.add('loading');
+                updateServerStats().finally(() => {
+                    if (refreshBtn) refreshBtn.classList.remove('loading');
+                });
+            }
+            /**
+             * 从接口拉取并更新所有状态数据
+             */
+            async function updateServerStats() {
+                if (isRefreshing) return;
+                isRefreshing = true;
+                try {
+                    // 并行请求服务器基础信息 + 玩家列表
+                    const [serverRes, playersRes] = await Promise.all([
+                        fetch(`${API_BASE}/server`),
+                        fetch(`${API_BASE}/players`)
+                    ]);
+                    if (!serverRes.ok) throw new Error('接口请求失败');
+                    
+                    const serverData = await serverRes.json();
+                    const playersData = await playersRes.json();
+                    // 1. 更新顶部运行状态
+                    setServerStatus('online');
+                    // 工具函数：字节转 GB
+                    const byteToGB = (byte) => (byte / (1024 ** 3)).toFixed(1);
+                    // 2. 计算内存占用
+                    const usedMem = serverData.health.totalMemory - serverData.health.freeMemory;
+                    const maxMem = serverData.health.maxMemory;
+                    const memPercent = Math.min(100, (usedMem / maxMem) * 100);
+                    // 3. 更新四个监控卡片
+                    // CPU核心数
+                    const cpuVal = document.querySelector('.stat-value.text-blue-400');
+                    if (cpuVal) cpuVal.textContent = serverData.health.cpus + ' 核心';
+                    // 内存
+                    const memVal = document.querySelector('.stat-value.text-green-400');
+                    if (memVal) memVal.textContent = byteToGB(usedMem) + ' GB';
+                    // TPS
+                    const tpsVal = document.querySelector('.stat-value.text-yellow-400');
+                    if (tpsVal) tpsVal.textContent = Number(serverData.tps).toFixed(1);
+                    // 4. 更新内存进度条
+                    const memBar = document.querySelector('.stat-bar-fill');
+                    if (memBar) memBar.style.width = memPercent + '%';
+                    // 5. 更新在线玩家数量
+                    if (playerCountEl) {
+                        playerCountEl.textContent = `${serverData.onlinePlayers} / ${serverData.maxPlayers}`;
+                    }
+                    // 6. 渲染玩家列表（含维度和坐标）
+                    renderPlayerList(playersData);
+                } catch (e) {
+                    console.error('获取服务器数据失败:', e);
+                    // 请求失败自动切换为未连接状态
+                    setServerStatus('disconnected');
+                    // 重置玩家列表为占位
+                    if (playerListContainer) {
+                        playerListContainer.innerHTML = `
+                            <div class="text-4xl mb-3" aria-hidden="true">🏠</div>
+                            <p>暂无玩家在线</p>
+                            <p class="text-sm mt-1">数据连接中断</p>
+                        `;
+                        playerListContainer.className = 'text-center py-12 text-gray-500';
+                    }
+                } finally {
+                    isRefreshing = false;
+                }
+            }
+            /**
+             * 渲染在线玩家列表（含维度、坐标）
+             */
+            function renderPlayerList(players) {
+                if (!playerListContainer) return;
+                if (!players || players.length === 0) {
+                    // 无玩家
+                    playerListContainer.innerHTML = `
+                        <div class="text-4xl mb-3" aria-hidden="true">🏠</div>
+                        <p>暂无玩家在线</p>
+                        <p class="text-sm mt-1">数据实时更新中</p>
+                    `;
+                    playerListContainer.className = 'text-center py-12 text-gray-500';
+                } else {
+                    // 有玩家，渲染卡片网格
+                    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">';
+                    players.forEach(player => {
+                        const name = player.displayName || '未知玩家';
+                        const dimKey = player.dimension || 'NORMAL';
+                        const worldName = WORLD_NAMES[dimKey] || dimKey;
+                        // location 数组：[x, y, z]
+                        const x = Math.round(player.location[0] || 0);
+                        const y = Math.round(player.location[1] || 0);
+                        const z = Math.round(player.location[2] || 0);
+                        html += `
+                            <div class="player-card glass-card">
+                                <div class="player-name">${name}</div>
+                                <div class="player-meta">
+                                    <div class="player-world">🌍 ${worldName}</div>
+                                    <div class="player-coord">📍 ${x} ${y} ${z}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    playerListContainer.innerHTML = html;
+                    playerListContainer.className = '';
+                }
+            }
+            /**
+             * 一键复制文本（兼容全浏览器）
+             * @param {string} elementId - 文本元素ID
+             * @param {HTMLElement} btn - 触发按钮
+             */
+            function copyText(elementId, btn) {
+                const targetEl = document.getElementById(elementId);
+                if (!targetEl) return;
+                const text = targetEl.textContent.trim();
+                const originalText = btn.textContent;
+                // 优先使用现代剪贴板 API
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => showCopySuccess(btn, originalText))
+                        .catch(() => fallbackCopy(text, btn, originalText));
+                } else {
+                    // 降级兼容方案
+                    fallbackCopy(text, btn, originalText);
+                }
+            }
+            /**
+             * 降级复制方案（execCommand）
+             */
+            function fallbackCopy(text, btn, originalText) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess(btn, originalText);
+                } catch (err) {
+                    btn.textContent = '复制失败';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('copied');
+                    }, 1500);
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
+            /**
+             * 显示复制成功提示
+             */
+            function showCopySuccess(btn, originalText) {
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 1500);
+            }
+            // DOM 加载完成后自动初始化
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+            // 对外暴露公共方法
+            return {
+                switchPanel: switchPanel,
+                setServerStatus: setServerStatus,
+                copyText: copyText,
+                refreshStats: updateServerStats,
+                manualRefresh: manualRefresh
+            };
+        })();
+        // 挂载到全局，方便外部调用
+        window.setServerStatus = MCServer.setServerStatus;
+    </script>
+</body>
+</html>
